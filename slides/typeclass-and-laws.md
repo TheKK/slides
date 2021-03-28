@@ -57,9 +57,20 @@ filter :: (a -> Bool) -> [a] -> [a]
 
 # List
 
+## Type
+
 ```haskell
-listMap :: (List a, a -> b) -> List b
-f :: Int -> Int
+listMap :: (a -> b) -> [a] -> [b]
+```
+
+## Examples
+
+```haskell
+listMap toUpperString ["apple", "book"] :: [Int]
+> ["APPLE", "BOOK"]
+
+listMap length ["apple", "book"] :: [Int]
+> [5, 4]
 ```
 
 ---
