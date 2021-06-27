@@ -2,7 +2,7 @@
   description = "KK's collection of flake templates";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-20.09";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-21.05";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
@@ -11,7 +11,7 @@
       let pkgs = import nixpkgs { inherit system; };
       in {
         devShell = pkgs.mkShell {
-          nativeBuildInputs = with pkgs; [ yarn ];
+          nativeBuildInputs = with pkgs; [ yarn nodejs ];
         };
       });
 }

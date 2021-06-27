@@ -1,0 +1,23 @@
+"沒人在用，全部都是函數，一堆遞迴，函數可以當參數傳遞，沒有變數，寫起來很奇怪，很多數學，太學術"
+
+在我的過去經歷中，我對函數式程式語言的理解僅止於簡單的 LISP，我甚至不知道我寫的是哪一種 LISP，但對於他們卻存在著 "想象"。這些想象在我開始學習 Haskell 後慢慢消失，形成更爲具體的意向，成爲我設計程式時的幫手。
+
+在這個議程內，將和各位聊聊 Haskell 這門程式語言，爲什麼我覺得他值得被介紹，他有哪些流行語言中找不到的有趣設計，值得我們去比較/批判。議程中會簡單介紹語法，幾個好玩的 type class，parser combinator  等新鮮有用的東西。
+
+議程內容會著重在 "功能" 而非 "原理/理論" 上，因此即便你對於函數式程式語言沒有概念，也歡迎一起參予，一起討論！
+
+"no body use it, functions everywhere, a lot of recursions, passing function as value, no variable, strongly connected with math, too academic"
+
+In my past experience, my understanding of functional programing stops at the surface of simple LISP, I can't even remember which dialects I used to learn. But these vague "images" still stick in my mind. These "images"  become more clear and start to assist me to design software after I learn Haskell.
+
+We'll talk about programing language Haskell, telling why I think it's worth mentioning and some interesting design that you can hardly find in mainstream programing language, to discuss and compare them together. You can these topics in this talk: the basic syntax of Haskell, fun type classes, parser combinator, and more fresh and useful stuff.
+
+In this talk we will focus on "usage" instead of "theroy" behind, which means that you can still enjoy this talk even if you have no experience with function programing language!
+
+我以前寫 C++，後來寫 Rust，最後來到 Haskell （當然，僅此於興趣）。
+
+小時候曾經玩超級銀河戰士玩到做噩夢。
+
+I wrote C++ before, then Rust, and Haskell now (for habit only, of course).
+
+I used to have a nightmare after played Super Metroid when I was a child.
