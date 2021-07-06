@@ -115,13 +115,121 @@ you'll be about to read these after this chapter
 
 # Literals
 
+```haskell
+42
+
+"hello world"
+
+True
+
+["apple", "orange", "banana"]
+
+(\x -> "yes")
+```
+
+---
+
+# Function application
+    
+```haskell
+-- infix function application
+1 + 2
+
+-- chained infix functions application
+1 + 2 + 3
+
+-- prefix function application
+sum([1, 2, 3])
+
+-- but the parentheses is "optional"
+sum [1, 2, 3]
+
+-- no one like parentheses, right?
+1 + (2 + 3)
+
+-- more than one argument
+fmap length ["apple", "orange", "banana"]
+```
+
 ---
 
 # Function application
 
-  - function application
-    - parens is optional
-    - infix operations, eg (+)
+We'll use this format to display result of expression in the following slides
+    
+```haskell
+1 + 2
+> 3
+
+1 + 2 + 3
+> 6
+
+sum([1, 2, 3])
+> 6
+
+sum [1, 2, 3]
+> 6
+
+1 + (2 + 3)
+> 6
+
+fmap length ["apple", "orange", "banana"]
+> [5, 6, 6]
+```
+
+---
+
+# Function application
+
+Don't forget the lambda literal
+    
+```haskell
+(\x -> x + 1) 41
+> 42
+
+(\x y -> x + y) 3 3
+> 6
+
+(\x -> "yes") "no"
+> "yes"
+
+(\x -> "yes") "I say no!!!"
+> "yes"
+
+(\x -> x) "ok"
+> "ok"
+
+(\x -> x) [True, True, False]
+> [True, True, False]
+```
+
+---
+
+# Function application
+
+Prefix, infix, your choice
+    
+```haskell
+-- "non-symbol" functions are prefix by default
+mod 10 3
+> 1
+
+-- calling them with `` make them infix
+10 `mod` 3
+> 1
+
+-- "symbol" functions are infix by default
+[1, 2] ++ [3, 4]
+> [1, 2, 3, 4]
+
+-- calling them with () make them prefix
+(++) [1, 2] [3, 4]
+> [1, 2, 3, 4]
+```
+
+<!--
+maybe move the to feature section?
+-->
 
 ---
 
