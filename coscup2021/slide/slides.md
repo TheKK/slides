@@ -96,15 +96,12 @@ chapter II
 
 # What does Haskell look like?
 
-my favorite example
+Here's my favorite snippet
 
 ```haskell
 students & sortBy (comparing height)
 ```
 
-```haskell
-"Hello" <> "World"
-```
 you'll be about to read these after this chapter
 
 <!--
@@ -120,11 +117,27 @@ you'll be about to read these after this chapter
 
 "hello world"
 
+("egg", 5)
+
 True
 
 ["apple", "orange", "banana"]
 
 (\x -> "yes")
+```
+
+---
+
+# Function application
+
+```haskell
+-- "+" is a function
+-- When the function name is "symbol", it's infix function
+1 + 2
+
+-- "sum" is a function
+-- When the function name is "alphabet", it's prefix function
+sum([1, 2, 3])
 ```
 
 ---
@@ -141,14 +154,14 @@ True
 -- prefix function application
 sum([1, 2, 3])
 
--- but the parentheses is "optional"
+-- but the parentheses is "optional" in most case
 sum [1, 2, 3]
 
 -- no one like parentheses, right?
 1 + (2 + 3)
 
 -- more than one argument
-fmap length ["apple", "orange", "banana"]
+map length ["apple", "orange", "banana"]
 ```
 
 ---
@@ -181,7 +194,7 @@ fmap length ["apple", "orange", "banana"]
 
 # Function application
 
-Don't forget the lambda literal
+Don't forget the lambda expression
     
 ```haskell
 (\x -> x + 1) 41
@@ -202,6 +215,73 @@ Don't forget the lambda literal
 (\x -> x) [True, True, False]
 > [True, True, False]
 ```
+
+---
+
+# How we write down type of expressions
+
+Literals
+    
+`12 :: Int`, the type of `12` is `Int`
+
+`"Hello" :: String`, the type of `"Hello"` is `String`
+
+`True :: Bool`, the type of `True` is `Bool`
+
+more examples
+
+`("yes", 123) :: (String, Int)`
+
+`[1, 2, 3] :: [Int]`
+
+`[[1, 2, 3], [4, 5, 6]] :: [[Int]]`
+ 
+---
+
+# How we write down type of expressions
+
+Functions
+
+You could treat the last type as return type
+
+- lambda expressions have type
+
+`(\a -> a + 1) :: Int -> Int`, argument is `Int`, return type is `Int`
+
+`(\a b -> a + b) :: Int -> Int -> Int`, arguments are `Int` and `Int`, return type is `Int`
+
+- named functions have type as well
+
+`sum :: [Int] -> Int`
+
+`mapStringToLength :: [String] -> [Int]`
+
+---
+
+# define function
+
+  - define function in code
+    - f(x) = x^2
+
+---
+
+# define value
+
+  - define value in code
+
+---
+
+# Simple generic function
+
+  - simple generic function
+    - map :: (a -> b) -> [a] -> [b]
+---
+layout: cover
+---
+
+# Unique features
+
+chapter III
 
 ---
 
@@ -233,35 +313,3 @@ maybe move the to feature section?
 
 ---
 
-# How we write down types
-
-  - how we write down types
-    - a -> b
-    - a -> b -> c
-
----
-
-# define function
-
-  - define function in code
-    - f(x) = x^2
-
----
-
-# define value
-
-  - define value in code
-
----
-
-# Simple generic function
-
-  - simple generic function
-    - map :: (a -> b) -> [a] -> [b]
----
-layout: cover
----
-
-# Unique features
-
-chapter III
