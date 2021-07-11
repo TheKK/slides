@@ -161,7 +161,7 @@ sum [1, 2, 3]
 1 + (2 + 3)
 
 -- more than one argument
-map length ["apple", "orange", "banana"]
+mapList (\s -> length s) ["apple", "orange", "banana"]
 ```
 
 ---
@@ -186,7 +186,7 @@ sum [1, 2, 3]
 1 + (2 + 3)
 > 6
 
-fmap length ["apple", "orange", "banana"]
+mapList (\s -> length s) ["apple", "orange", "banana"]
 > [5, 6, 6]
 ```
 
@@ -220,7 +220,7 @@ Don't forget the lambda expression
 
 # How we write down type of expressions
 
-Literals
+Type of literals
     
 `12 :: Int`, the type of `12` is `Int`
 
@@ -240,7 +240,7 @@ more examples
 
 # How we write down type of expressions
 
-Functions
+Type of functions
 
 You could treat the last type as return type
 
@@ -258,23 +258,132 @@ You could treat the last type as return type
 
 ---
 
-# define function
+# Define value in code
 
-  - define function in code
-    - f(x) = x^2
+```haskell
+theAnswer :: Int
+theAnswer = 42
+```
+
+So basically you tell compiler (or your co-worker):
+
+- what's the type of `theAnswer`
+- what's the implementation of `theAnswer`
 
 ---
 
-# define value
+# Define function in code
 
-  - define value in code
+```haskell
+addThree :: Int -> Int
+addThree = (\n -> n + 3)
+```
+
+So basically you tell compiler (or your co-worker):
+
+- what's the type of `addThree`
+- what's the implementation of `addThree`
 
 ---
 
-# Simple generic function
+# Define value in code
 
-  - simple generic function
-    - map :: (a -> b) -> [a] -> [b]
+Looks familiar
+
+```haskell
+theAnswer :: Int
+theAnswer = 42
+```
+
+```haskell
+addThree :: Int -> Int
+addThree = (\n -> n + 3)
+```
+
+For sure, **function** is one kind of **value**
+
+---
+
+# Define function in code
+
+So many possibilities
+
+```haskell
+addThree :: Int -> Int
+addThree = (\n -> n + 3)
+```
+
+To reduce the number of parentheses and arrows, you could define **functoin** in the following form
+
+```haskell
+addThree :: Int -> Int -- type is the same
+addThree n = n + 3     -- move argument the the left
+```
+
+or in elementary school style, if you prefer (yes it's valid syntax)
+
+```haskell
+f :: Int -> Int
+f(x) = x + 3
+```
+
+---
+
+# Go back to this
+
+We've learned enough to read this
+
+```haskell
+students & sortBy (comparing height)
+```
+
+types of these
+
+```haskell
+students :: [Student]
+
+sortBy :: (a -> a -> Ordering) -> [a] -> [a]
+
+-- please ignore the weird Ord here.
+comparing :: Ord a => (b -> a) -> b -> b -> Ordering
+
+height :: Student -> Int
+
+(&) :: a -> (a -> b) -> b
+```
+
+---
+
+# Solving this
+
+```haskell
+students & sortBy (comparing height)
+```
+
+```haskell
+comparing :: Ord a => (b -> a) -> b -> b -> Ordering
+height ::        Student -> Int
+
+-- Step 1: "b" is Student, "a" in Int
+(comparing height) :: Student -> Student -> Ordering
+
+sortBy ::             (a      -> a       -> Ordering) -> [a] -> [a]
+
+-- Step 2: "a" is Student
+sortBy (comparing height) :: [Student] -> [Student]
+
+students :: [Student]
+(&) :: a -> (a -> b) -> b
+
+-- Step 3: "a" is [Student], "b" is [Student] as well
+students & sortBy (comparing height)
+```
+
+
+<!--
+慢慢看沒有問題的
+-->
+
 ---
 layout: cover
 ---
@@ -312,4 +421,7 @@ maybe move the to feature section?
 -->
 
 ---
+
+# Generic
+
 
