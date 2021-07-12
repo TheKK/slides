@@ -329,6 +329,64 @@ f(x) = x + 3
 
 ---
 
+# Simple generic in functions
+
+```haskell
+mapStringToInt :: (String -> Int) -> ([String] -> [Int])
+```
+
+how to make it more generic? Simple! Make some `type variable`!
+
+```haskell
+-- String becomes 'a'
+-- Int becomes 'b'
+map :: (a -> b) -> ([a] -> [b])
+```
+
+---
+
+# Simple generic in functions
+
+```haskell
+map :: (a -> b) -> ([a] -> [b])
+
+length :: String -> Int
+(map length) :: [String] -> [Int]
+
+not :: Bool -> Bool
+(map not) :: [Bool] -> [Bool]
+
+toString :: Int -> String
+(map toString) :: [Int] -> [String]
+```
+
+now `map` is generic that you can map **everything** inside list `[]`
+
+---
+
+
+# Simple generic in functions, examples
+
+```haskell
+(map length) :: [String] -> [Int]
+(map not) :: [Bool] -> [Bool]
+(map toString) :: [Int] -> [String]
+
+(map length) ["a", "aa", "aaa"]
+> [1, 2, 3]
+
+(map not) [True, True, False]
+> [False, False, True]
+
+(map toString) [9, 10, 11]
+> ["9", "10", "11"]
+
+(map length) ((map toString) [9, 10, 11])
+> [1, 2, 2]
+```
+
+---
+
 # Go back to this
 
 We've learned enough to read this
@@ -342,10 +400,10 @@ types of these
 ```haskell
 students :: [Student]
 
-sortBy :: (a -> a -> Ordering) -> [a] -> [a]
+sortBy :: (a -> a -> Ordering) -> ([a] -> [a])
 
 -- please ignore the weird Ord here.
-comparing :: Ord a => (b -> a) -> b -> b -> Ordering
+comparing :: Ord a => (b -> a) -> (b -> b -> Ordering)
 
 height :: Student -> Int
 
@@ -354,14 +412,14 @@ height :: Student -> Int
 
 ---
 
-# Solving this
+# Solve this now!
 
 ```haskell
 students & sortBy (comparing height)
 ```
 
 ```haskell
-comparing :: Ord a => (b -> a) -> b -> b -> Ordering
+comparing :: Ord a => (b -> a) -> (b -> b -> Ordering)
 height ::        Student -> Int
 
 -- Step 1: "b" is Student, "a" in Int
@@ -394,7 +452,77 @@ chapter III
 
 ---
 
-# Function application
+# REPL
+
+Read–eval–print loop
+
+You can see result directly
+
+```shell
+>_ ghci
+GHCi, version 8.8.4: https://www.haskell.org/ghc/  :? for help
+Loaded GHCi configuration from /home/kk/.ghci,,
+
+> 1 + 41
+42
+
+> fmap show [1..10]
+["1","2","3","4","5","6","7","8","9","10"]
+
+> not True
+False
+
+> length "apple"
+5
+```
+
+---
+
+# REPL
+
+Read–eval–print loop
+
+You can check types of expression
+
+```shell
+> :type not True
+not True :: Bool
+
+> :type fmap show [1..10]
+fmap show [1..10] :: [String]
+
+> :type length "apple"
+length "apple" :: Int
+```
+
+---
+
+# REPL
+
+Read–eval–print loop
+
+You can load any Haskell source code and reload it after editing
+
+```shell
+> :load /tmp/Main.hs
+[1 of 1] Compiling Main             ( /tmp/Main.hs, interpreted )
+Ok, one module loaded.
+> :browse Main
+# After some edits
+> :reload
+[1 of 1] Compiling Main             ( /tmp/Main.hs, interpreted )
+Ok, one module loaded.
+> :browse Main
+haha :: String
+> haha
+"hahaha"
+```
+
+You don't need to import certain module and running some functions to *partially* reload your module. ([StackOverflow: How do I unload (reload) a Python module?](https://stackoverflow.com/questions/437589/how-do-i-unload-reload-a-python-module))
+
+---
+
+# Function is useful and everywhere
 
 Prefix, infix, your choice
     
