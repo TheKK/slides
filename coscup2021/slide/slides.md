@@ -544,9 +544,115 @@ mod 10 3
 > [1, 2, 3, 4]
 ```
 
-<!--
-maybe move the to feature section?
--->
+---
+
+# Function is useful and everywhere
+
+Everyone wants infix function, but they pretend they don't
+    
+```haskell
+numberA `compare` numberB
+```
+
+```c#
+// C#
+// if method is so great, why don't they write "123.add(100)?
+123 + 100 // 223
+123.CompareTo(100) // 1
+```
+
+```rust
+// Rust
+123 + 100 // 223
+123_i32.cmp(&100) // Ordering::Greater
+```
+
+Now you know why people sometimes are obsessive about "object", because "method" is actually infix function!
+
+---
+
+# Function is useful and everywhere
+
+Don't like it? Then use function to change it!
+
+```haskell
+(&) :: a -> (a -> b) -> b
+sort :: [Int] -> [Int]
+
+-- missing the object-like method?
+sort [4,3,2,1]
+
+-- no thanks!
+[4,3,2,1] & sort
+```
+
+---
+
+# Function is useful and everywhere
+
+Like the idea of **TRUE-ZERO-PARENTHESE**?
+
+```haskell
+gameCollections :: Set Game
+metroidDread :: Game
+silksong :: Game
+
+insert :: Game -> (Set Game -> Set Game)
+
+-- oh my
+insert silksong (insert metroidDread gameCollections)
+
+-- oh, is that...
+gameCollections & insert metroidDread & insert silksong
+
+-- it's method chaining! it's fluent interface!
+-- NO! It's just function...
+gameCollections
+  & insert metroidDread
+  & insert silksong
+```
+
+---
+
+# Currying
+
+
+```haskell
+-- follows the type
+addThreeInt       :: Int -> Int -> Int -> Int
+addThreeInt 1     :: Int -> Int -> Int
+addThreeInt 1 2   :: Int -> Int
+addThreeInt 1 2 3 :: Int
+```
+
+it means that `addThreeInt 1 2` is valild and returns a **function** with type `Int -> Int`!
+
+you don't need to write code below like many other languages (too many parentheses)
+
+```haskell
+(\n -> addThreeInt 1 2 n) 3
+```
+
+---
+
+# Currying
+
+In haskell, currying happends to all functions, and that's useful
+
+```haskell
+numbers :: [Int]
+filter :: (a -> Bool) -> [a] -> [a]
+
+-- too many words
+filter (\n -> n < 10) numbers
+
+-- that's good
+filter (< 10) numbers
+```
+
+it means that `addThreeInt 1 2` returns a **function** with type `Int -> Int`!
+
+In haskell, currying happends to all functions
 
 ---
 
