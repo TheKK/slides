@@ -29,6 +29,9 @@ KK - COSCUP 2021
 - stories and history
 - basic grammar
 - unique features
+  - repl
+  - function
+  - data
   - IO
   - concurrency
   - parser
@@ -91,6 +94,19 @@ layout: cover
 # Basic grammar
 
 chapter II
+
+---
+
+# Key points of Haskell
+
+It's dangerous to go alone! Take these.
+
+- everything is function
+  - value is like function without argument, wow
+- Haskell is lazy
+  - I won't focus on this part in this talk
+- Haskellers are lazy
+  - we don't like duplicate stuff
 
 ---
 
@@ -476,6 +492,10 @@ False
 5
 ```
 
+<!--
+雖然是靜態型別，但是還是有有 repl
+-->
+
 ---
 
 # REPL
@@ -616,7 +636,6 @@ gameCollections
 
 # Currying
 
-
 ```haskell
 -- follows the type
 addThreeInt       :: Int -> Int -> Int -> Int
@@ -627,10 +646,16 @@ addThreeInt 1 2 3 :: Int
 
 it means that `addThreeInt 1 2` is valild and returns a **function** with type `Int -> Int`!
 
-you don't need to write code below like many other languages (too many parentheses)
+you don't need to write code below like many other languages
 
 ```haskell
+-- even though it's still valid
 (\n -> addThreeInt 1 2 n) 3
+```
+
+```javascript
+// JavaScript, so many parentheses, is that Lisp?
+(n => addThreeInt(1, 2, n)) (3) 
 ```
 
 ---
@@ -652,10 +677,192 @@ filter (< 10) numbers
 
 it means that `addThreeInt 1 2` returns a **function** with type `Int -> Int`!
 
-In haskell, currying happends to all functions
+---
+
+# Data
+
+how do we define & construct data?
+
+---
+
+# Data - declare them
+
+Like enum
+
+```haskell
+-- Define a type named MyBool
+data MyBool = MyTrue | MyFalse
+
+-- And you'll get following functions automatically
+
+-- MyTrue  :: MyBool
+-- MyFalse :: MyBool
+```
+
+It's like `enum` in most language
+
+`MyBool` is either `MyTrue` or `MyFalse`
+
+---
+
+# Data - declare them
+
+Like struct
+
+```haskell
+-- Define a type named Person
+data Person = Person Int String
+
+-- And you'll get following functions automatically
+-- I know it's confusing, but
+-- one Person is *function*, the other is *type*
+
+-- Person :: Int -> String -> Person
+```
+
+It's like `struct` in most language
+
+`Person` stores two field, `Int` and `String`
+
+---
+
+# Data - declare them
+
+More like struct
+
+```haskell
+-- Define a type named Person
+data Person = Person
+  { age  :: Int
+  , name :: String
+  }
+
+-- And you'll get following functions automatically
+
+-- Person :: Int -> String -> Person
+
+-- age  :: Person -> Int
+-- name :: Person -> String
+```
+
+It's like `struct` in most language, with field accessor
+
+---
+
+# Data - mix them
+
+We want both
+
+```haskell
+-- Define a type named Shape
+data Shape
+  = Circle { radius :: Int }
+  | Rectangle { width :: Int , height :: Int }
+
+-- And you'll get following functions automatically
+
+-- Circle    :: Int -> Shape
+-- Rectangle :: Int -> Int -> Shape
+
+-- radius :: Circle -> Int
+-- width  :: Rectangle -> Int
+-- height :: Rectangle -> Int
+```
+
+---
+
+# Data - generic
+
+We don't have billion-dollar mistake
+
+```haskell
+-- Define a type named Maybe
+data Maybe a = Nothing | Just a
+
+-- And you'll get following functions automatically
+
+-- Nothing :: Maybe a
+-- Just    :: a -> Maybe a
+
+Just "do it" :: Maybe String
+```
+
+It's like `null pointer` in most language, but you **CAN'T** dereference it randomly
+
+---
+
+# Pattern matching
+
+now, we need to destruct our data
+
+---
+
+# Pattern matching
+
+The enum type
+
+```haskell
+data MyBool = MyTrue | MyFalse
+
+boolToString :: MyBool -> String
+boolToString myBool = case myBool of
+  MyTrue  -> "my true"
+  MyFalse -> "my false"
+```
+
+We use `case <expr> of` to *destruct* our data
+
+Then *transform* them into other type of data
+
+---
+
+# Pattern matching
+
+The struct type
+
+```haskell
+data Person = Person Int String
+
+personToString :: Person -> String
+personToString p = case p of
+  Person age name -> name
+```
+```haskell
+data Maybe a = Nothing | Just a
+
+maybeStringToString :: Maybe String -> String
+maybeStringToString ms = case ms of
+  Just s  -> s
+  Nothing -> ""
+```
+
+---
+
+# Too boring? Check this out!
+
+---
+
+# Pattern matching
+
+Can you tell which case is missing?
+
+```haskell
+someLogic :: (Bool, Bool, Bool) -> String
+someLogic bs = case bs of
+  (True,    _,     _) -> "a"
+  (   _, True,  True) -> "b"
+  (   _,    _, False) -> "c"
+```
+
+```cpp
+string some_logic(bool a, bool b, bool c) {
+  if (a) { return "a"; }
+  if (b && c) { return "b"; }
+  if (!c) { return "c"; }
+  // 
+}
+```
 
 ---
 
 # Generic
-
-
