@@ -72,6 +72,7 @@ some important events
 - 1990 - Haskell 1.0
   - almost 31 years old !
 - 1996 - Haskell 1.3
+  - monadic I/O
   - do notation (we'll talk about it later)
 - 1999 - Haskell 98
   - Concurrent Haskell
@@ -103,10 +104,12 @@ It's dangerous to go alone! Take these.
 
 - everything is function
   - value is like function without argument, wow
-- Haskell is lazy
+- Haskell is lazy (evaluation) by default
   - I won't focus on this part in this talk
 - Haskellers are lazy
-  - we don't like duplicate stuff
+  - they don't like repetition
+- focus on input, output and types
+  - try not to think about variable mutation here
 
 ---
 
@@ -351,13 +354,15 @@ f(x) = x + 3
 mapStringToInt :: (String -> Int) -> ([String] -> [Int])
 ```
 
-how to make it more generic? Simple! Make some `type variable`!
+how to make it more generic? Simple! Make some **type variables**!
 
 ```haskell
 -- String becomes 'a'
 -- Int becomes 'b'
 map :: (a -> b) -> ([a] -> [b])
 ```
+
+Now `a` and `b` could be **any** types. Of course `a` could be the same type as `b`.
 
 ---
 
@@ -378,8 +383,11 @@ toString :: Int -> String
 
 now `map` is generic that you can map **everything** inside list `[]`
 
----
+<!--
+這裏看看型別
+-->
 
+---
 
 # Simple generic in functions, examples
 
@@ -400,6 +408,10 @@ now `map` is generic that you can map **everything** inside list `[]`
 (map length) ((map toString) [9, 10, 11])
 > [1, 2, 2]
 ```
+
+<!--
+這裏看看數值
+-->
 
 ---
 
@@ -472,10 +484,14 @@ chapter III
 
 Read–eval–print loop
 
+---
+
+# REPL
+
 You can see result directly
 
 ```shell
->_ ghci
+> ghci
 GHCi, version 8.8.4: https://www.haskell.org/ghc/  :? for help
 Loaded GHCi configuration from /home/kk/.ghci,,
 
@@ -500,8 +516,6 @@ False
 
 # REPL
 
-Read–eval–print loop
-
 You can check types of expression
 
 ```shell
@@ -518,8 +532,6 @@ length "apple" :: Int
 ---
 
 # REPL
-
-Read–eval–print loop
 
 You can load any Haskell source code and reload it after editing
 
@@ -539,6 +551,12 @@ haha :: String
 ```
 
 You don't need to import certain module and running some functions to *partially* reload your module. ([StackOverflow: How do I unload (reload) a Python module?](https://stackoverflow.com/questions/437589/how-do-i-unload-reload-a-python-module))
+
+---
+
+# Functions
+
+Haskell loves functions, uses lots of function, and uses them very well
 
 ---
 
@@ -636,8 +654,14 @@ gameCollections
 
 # Currying
 
+Not Japaness style, not indian style, Haskell style!
+
+---
+
+# Currying
+
 ```haskell
--- follows the type
+-- follows the type, they're all valid expressions
 addThreeInt       :: Int -> Int -> Int -> Int
 addThreeInt 1     :: Int -> Int -> Int
 addThreeInt 1 2   :: Int -> Int
@@ -649,12 +673,12 @@ it means that `addThreeInt 1 2` is valild and returns a **function** with type `
 you don't need to write code below like many other languages
 
 ```haskell
--- even though it's still valid
+-- even though it's still valid in Haskell
 (\n -> addThreeInt 1 2 n) 3
 ```
 
 ```javascript
-// JavaScript, so many parentheses, is that Lisp?
+// JavaScript, so many parentheses, is that LispScript?
 (n => addThreeInt(1, 2, n)) (3) 
 ```
 
@@ -675,7 +699,7 @@ filter (\n -> n < 10) numbers
 filter (< 10) numbers
 ```
 
-it means that `addThreeInt 1 2` returns a **function** with type `Int -> Int`!
+It's not that useful at a glance, but it'll be annoying quickly when you have to write down function argument every time.
 
 ---
 
@@ -793,7 +817,7 @@ It's like `null pointer` in most language, but you **CAN'T** dereference it rand
 
 # Pattern matching
 
-now, we need to destruct our data
+now we have data, time to destruct them
 
 ---
 
@@ -844,7 +868,21 @@ maybeStringToString ms = case ms of
 
 # Pattern matching
 
+```haskell
+someLogic :: (Bool, Bool, Bool) -> String
+someLogic bs = case bs of
+  (True,    _,     _) -> "a"
+  (   _, True,  True) -> "b"
+  (   _,    _, False) -> "c"
+```
+
+`_` means the hold could be either `True` or `False`
+
 Can you tell which case is missing?
+
+---
+
+# Pattern matching
 
 ```haskell
 someLogic :: (Bool, Bool, Bool) -> String
@@ -854,15 +892,262 @@ someLogic bs = case bs of
   (   _,    _, False) -> "c"
 ```
 
+anyhow, the Haskell compiler could find it out instantly
+
+```
+Main.hs:2:16: warning: [-Wincomplete-patterns]
+    Pattern match(es) are non-exhaustive
+    In a case alternative: Patterns not matched: (False, False, True)
+  |
+2 | someLogic bs = case bs of
+  |                ^^^^^^^^^^...
+```
+
+---
+
+# Pattern matching
+
+It's a blessing to be able to write program like table and let compiler has your back
+
+```haskell
+someLogic :: (Bool, Bool) -> String
+someLogic bs = case bs of
+  (True, True)   -> "a"
+  (True, False)  -> "b"
+  (False, False) -> "c"
+  (False, True)  -> "d"
+```
+
 ```cpp
-string some_logic(bool a, bool b, bool c) {
-  if (a) { return "a"; }
-  if (b && c) { return "b"; }
-  if (!c) { return "c"; }
-  // 
+string some_logic(bool a, bool b) {
+  if (a) {
+    if (b) { return "a"; }
+    else { return "b"; }
+  } else {
+    if (b) { return "c"; }
+    else { return "d"; }
+  }
 }
 ```
 
 ---
 
-# Generic
+# IO, side effects
+
+Wake up, we have a **RealWorld** to burn
+
+---
+
+# IO
+
+Hello World
+
+```haskell
+putStrLn :: String -> IO ()
+
+-- Every Haskell program start from here
+main :: IO ()
+main = putStrLn "Hello World"
+
+-- Running this program and you'll get
+-- "Hello World" on your console
+```
+
+pretty short, huh
+
+---
+
+# IO
+
+Hello World, explanation
+
+```haskell
+main :: IO ()
+main = putStrLn "Hello World"
+```
+
+- `()` is empty tuple, it's like `void` in some language
+  - you could call it **unit** in Haskell
+- `IO a` is a generic data type
+  - `a` could be anything
+- `IO ()` means: do some side effects and produce a unit
+- writing a Haskell program is like: chain lots of `IO` together to produce the final `IO ()` and run it
+
+---
+
+# IO
+
+How to connect them?
+
+```haskell
+putStrLn :: String -> IO ()
+getLine :: IO String
+(<>) :: String -> String -> String
+
+main :: IO ()
+main = ???
+```
+
+- `IO String` means: do some side effects and produce a String
+
+But how could us access the `String` from `getLine`, preppend it with "Hello, " then print it on screen?
+
+---
+
+# IO
+
+Time for ">>="
+
+```haskell
+putStrLn :: String -> IO ()
+getLine :: IO String
+(<>) :: String -> String -> String
+
+-- > > =
+(>>=) :: IO a -> (a -> IO b) -> IO b
+
+-- if we let "a" as String, "b" as ()...
+(>>=) :: IO String -> (String -> IO ()) -> IO ()
+```
+
+we could now connect them together
+
+```haskell
+getLine >>= \name -> putStrLn ("Hello, " <> name) :: IO ()
+```
+
+<!--
+讀你的名字，跟你說你好
+-->
+
+---
+
+# >>=, now you know the reason
+
+<logos-haskell-icon class="text-6xl" />
+
+<!--
+like H, like lambda, like >>=
+-->
+
+---
+
+# IO
+
+Greet to many of my friends (no joke, it's valid code)
+
+```haskell
+putStrLn :: String -> IO ()
+getLine :: IO String
+(<>) :: String -> String -> String
+(>>=) :: IO a -> (a -> IO b) -> IO b
+
+main :: IO ()
+main =
+  getLine >>= \firstFriend ->
+    getLine >>= \secondFriend ->
+      getLine >>= \thirdFriend ->
+        putStrLn ("Hello 1, " <> firstFriend) >>= \() ->
+          putStrLn ("Hello 2, " <> secondFriend) >>= \() ->
+            putStrLn ("Hello 3, " <> thirdFriend)
+```
+
+who on earth would write code like this!!!
+
+---
+
+# LispScript - Promise
+
+Not lisp, but like lisp
+
+```javascript
+var getUUID = () =>
+  fetch('https://httpbin.org/uuid')
+    .then(r => r.json()).then(j => j.uuid)
+    
+var showOnConsole = str => new Promise(resolve => {
+  console.log(str); resolve();
+})
+
+var main = () =>
+  getUUID().then(uuidA =>
+    getUUID().then(uuidB =>
+      getUUID().then(uuidC =>
+        showOnConsole("Hello 1, " + uuidA).then(() =>
+          showOnConsole("Hello 2, " + uuidB).then(() =>
+            showOnConsole("Hello 3, " + uuidC)
+  ))))) // << See, it is Lisp
+```
+
+
+<!--
+恭喜！如果你會寫 LispScript，拿你就會寫 Haskell 了
+-->
+
+---
+
+# IO - do notation
+
+The very first "syntax sugar"
+
+```haskell
+putStrLn :: String -> IO ()
+getLine :: IO String
+(<>) :: String -> String -> String
+(>>=) :: IO a -> (a -> IO b) -> IO b
+
+main :: IO ()
+main = do
+  firstFriend <- getLine
+  secondFriend <- getLine
+  thirdFriend <- getLine
+  putStrLn ("Hello 1, " <> firstFriend)
+  putStrLn ("Hello 2, " <> secondFriend)
+  putStrLn ("Hello 3, " <> thirdFriend)
+```
+
+who on earth would transform code into this!!!
+
+<!--
+有種感覺，你只能在 IO 裏面解開 IO
+並且製造一行一行執行的幻覺
+-->
+
+---
+
+# JavaScript - Async/Await
+
+```javascript
+var getUUID = () =>
+  fetch('https://httpbin.org/uuid')
+    .then(r => r.json()).then(j => j.uuid)
+
+var showOnConsole = str => new Promise(resolve => {
+  console.log(str); resolve();
+})
+
+var main = async () => {
+  let uuidA = await getUUID()
+  let uuidB = await getUUID()
+  let uuidC = await getUUID()
+  await showOnConsole("Hello 1, " + uuidA)
+  await showOnConsole("Hello 2, " + uuidB)
+  await showOnConsole("Hello 3, " + uuidC)
+}
+```
+
+---
+
+# History is fun
+
+|                               | Haskell           | JavaScript | diff     |
+| ------------- |:-------------:| -----:|---:|
+| 1.0                           | Haskell 1.0, 1990 | ES1, 1997  | 7  years |
+| >>=, Promise                  | Haskell 1.3, 1996 | ES6, 2015  | 19 years |
+| do notation, async/await      | Haskell 1.3, 1996 | ES8, 2017  | 21 years |
+
+---
+
+# IO, error handling
+
+try, catch, finally
