@@ -686,6 +686,31 @@ you don't need to write code below like many other languages
 
 # Currying
 
+Try to change your point of view, so magicall
+
+```haskell
+addThreeStuff :: Int -> Bool -> String -> Int
+```
+
+is actually (`->` is right associative)
+
+```haskell
+addThreeStuff :: Int -> (Bool -> (String -> Int))
+```
+
+so
+
+```haskell
+addThreeStuff :: Int -> (Bool -> (String -> Int))
+addThreeStuff 1       :: Bool -> (String -> Int)
+addThreeStuff 1 False          :: String -> Int
+addThreeStuff 1 False "bye"              :: Int
+```
+
+---
+
+# Currying
+
 In haskell, currying happends to all functions, and that's useful
 
 ```haskell
@@ -812,6 +837,79 @@ Just "do it" :: Maybe String
 ```
 
 It's like `null pointer` in most language, but you **CAN'T** dereference it randomly
+
+---
+
+# Type inference
+
+Statically typed does not need to be verbose
+
+---
+
+# Type inference
+
+Start from Map
+
+```haskell
+data Map k a
+
+empty  :: Map k a 
+insert :: Ord k => k -> a -> Map k a -> Map k a
+(&) :: a -> (a -> b) -> b
+```
+
+```haskell
+-- The type of expression below is Map Bool String
+empty
+  & insert True "yes"
+  & insert False "no"
+```
+
+Why there's no `Bool`, `Map` or `String` in our code and it still compiled !
+
+<!--
+靜態型別的語言不是應該型別寫地到處都是嗎
+-->
+
+---
+
+# Type inference
+
+Static enough
+
+```haskell
+data Map k a
+
+empty  :: Map k a 
+insert :: Ord k => k -> a -> Map k a -> Map k a
+```
+
+```haskell
+empty
+  & insert True "yes"
+  & insert False "no"
+```
+
+- `insert` in our code takes `Bool` and `String` as arguments
+- `insert :: Bool -> String -> Map Bool String -> Map Bool String`
+- so the compiler knows `empty` should return `Map Bool String`
+- and the compiler knows everything it needs
+
+---
+
+# Type inference
+
+Lessons
+
+- if a programing language is well designed, it could be robust yet clean
+- statically typed doesn't means verbose and ceremony code
+  - that's caused by your bad design, not by static type
+- the most popluar solution is not always the optimal one
+  - Bandwagon effect
+
+<!--
+從眾效應
+-->
 
 ---
 
@@ -1150,4 +1248,66 @@ var main = async () => {
 
 # IO, error handling
 
+Something went wrong and you have to do something
+
+---
+
+# IO - error handling
+
+Exception
+
+In Haskell, every `IO a` might throw exception during execution.
+
+The exception mechanism here is no different from other popular programing language
+
+- you can throw desired excpetion when needed
+- exception would propagate automatically
+- you can catch specific exception and try to recover it, stop the propagation
+
+---
+
+# Breaking news
+
+Here comes a new data type!
+
+```haskell
+data Either a b = Left a | Right b
+```
+
+Examples: 
+
+- `Either a b` is either `a` or `b`
+- `Either Apple Orange` is either `Apple` or `Orange`
+- `Either IOError FileHandle` is either `IOError` or `FileHandle`
+
+<!--
+看似很簡單對吧，但是多數的流行語言卻沒有辦法好好表達這種 AB 擇一的資料結構
+-->
+
+---
+
+# IO - error handling
+
 try, catch, finally
+
+we need only functions, no extra keywords required
+
+```haskell
+try :: Exception e => IO a -> IO (Either e a) 
+catch :: Exception e => IO a -> (e -> IO a) -> IO a
+finally :: IO a -> IO b -> IO a
+```
+
+more useful **functions**
+
+```haskell
+handle :: Exception e => (e -> IO a) -> IO a -> IO a 
+onException :: IO a -> IO b -> IO a 
+```
+
+<!--
+讓我們來一一看看，可以怎麽使用他們
+-->
+
+---
+
