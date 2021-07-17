@@ -1281,6 +1281,8 @@ Examples:
 - `Either IOError FileHandle` is either `IOError` or `FileHandle`
 
 <!--
+介紹這個，等等會用到
+
 看似很簡單對吧，但是多數的流行語言卻沒有辦法好好表達這種 AB 擇一的資料結構
 -->
 
@@ -1310,4 +1312,65 @@ onException :: IO a -> IO b -> IO a
 -->
 
 ---
+
+# IO - error handling
+
+See try in action
+
+```haskell
+try :: Exception e => IO a -> IO (Either e a) 
+
+readFile :: FilePath -> IO String
+
+usingTry = do
+  result <- try (readFile "/tmp/secret") :: IO (Either IOError String)
+  case result of
+    Left err -> putStrLn "oh no IO error"
+    Right content -> putStrLn content
+```
+
+`try` let you use `case ... of` to handle error and correct error repectly
+
+---
+
+# IO - error handling
+
+See catch in action
+
+```haskell
+catch :: Exception e => IO a -> (e -> IO a) -> IO a
+
+readFile :: FilePath -> IO String
+isDoesNotExistError :: IOError -> Bool
+pure :: a -> IO a
+
+usingCatch =
+  readFile "/tmp/secret"
+  `catch` \err ->
+    if isDoesNotExistError err
+      then pure "file does not exist"
+      else pure "random IO error"
+```
+
+`catch` let you specify how to recover from certain type of error
+
+---
+
+# IO - error handling
+
+See handle in action
+
+```haskell
+catch :: Exception e => IO a -> (e -> IO a) -> IO a
+handle :: Exception e => (e -> IO a) -> IO a -> IO a 
+
+usingHandle =
+  handle (\err ->
+  if isDoesNotExistError err
+    then pure "file does not exist"
+    else pure "random IO error")
+  (readFile "/tmp/secret")
+```
+
+`handle` is the "argument-reversed" version of `catch`, they share same behaviour
 
