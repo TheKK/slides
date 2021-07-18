@@ -34,7 +34,6 @@ KK - COSCUP 2021
   - data
   - IO
   - concurrency
-  - parser
   - etc
 
 ---
@@ -1373,4 +1372,544 @@ usingHandle =
 ```
 
 `handle` is the "argument-reversed" version of `catch`, they share same behaviour
+
+---
+
+# IO - error handling
+
+See finally in action
+
+```haskell
+finally :: IO a -> IO b -> IO a
+
+readFile :: FilePath -> IO String
+putStrLn :: String -> IO ()
+
+usingFinally =
+  readFile "/tmp/secret" -- IO a
+  `finally`
+  putStrLn "bye"         -- IO b
+```
+
+`finally` runs the `IO b` after `IO a` even if an exception was raised from `IO a`
+
+---
+
+# IO - error handling
+
+See onException in action
+
+```haskell
+onException :: IO a -> IO b -> IO a
+
+readFile :: FilePath -> IO String
+putStrLn :: String -> IO ()
+
+usingOnException =
+  readFile "/tmp/secret" -- IO a
+  `onException`
+  putStrLn "bye"         -- IO b
+```
+
+like `finally`, but only runs `IO b` when an exception was raised from `IO a`
+
+---
+
+# IO - error handling
+
+Lessons
+
+- it's possible to use only function to declare semantics of program
+- have only the ability to `catch exception` is far away from **usable**
+  - Java has `finally`, but C++ doesn't
+- has the ability to construct new semantics is important
+  - `finally` is made with `onException`, `onException` is made with `catch`, `catch` is the primitive operation
+- statement/keyword is less flexible than function
+  - C++ can not create `finally` statement, since it's **statement**
+  - Java can not create `onException` statement, since it's **statement**
+  
+---
+
+# Concurrency
+
+Let two tasks/threads run at the same time **conceptually**
+
+---
+
+# Concurrency
+
+Two
+
+Run two `IO` at the same time, conceptually
+
+```haskell
+concurrently :: IO a -> IO b -> IO (a, b) 
+```
+
+In most case, you don't need to know the implementation details. That's what we call **abstraction**, that's why functions are useful.
+
+---
+
+# Concurrency
+
+If we can run two, we can run more tnat two
+
+Run multiple `IO` at the same time conceptually, and amazingly simple
+
+```haskell
+mapConcurrently :: (a -> IO b) -> [a] -> IO [b]
+forConcurrently :: [a] -> (a -> IO b) -> IO [b]
+```
+
+```haskell
+queryUrl:: Url -> IO HTML
+
+mapConcurrently queryUrl ["pageA", "pageB", "pageC"] :: IO [HTML]
+
+-- for-loop style
+forforConcurrently ["pageA", "pageB", "pageC"] queryUrl :: IO [HTML]
+```
+
+---
+
+# Concurrency
+
+Simple yet powerful
+
+```haskell
+mapConcurrently :: (a -> IO b) -> [a] -> IO [b]
+forConcurrently :: [a] -> (a -> IO b) -> IO [b]
+
+queryUrl:: Url -> IO HTML
+
+mapConcurrently queryUrl ["pageA", "pageB", "pageC"] :: IO [HTML]
+forforConcurrently ["pageA", "pageB", "pageC"] queryUrl :: IO [HTML]
+```
+
+
+You won't see something like "WaitGroup" to count jobs, or using "Channel" to send message here.
+
+Haskell is SO GOOD at abstraction, haskellers are too lazy to write same stuff (ceremony) again and again and again ans again.
+
+---
+
+# Concurrency
+
+sequential, concurrent, you name it
+
+```haskell
+-- Concurrent
+mapConcurrently :: (a -> IO b) -> [a] -> IO [b]
+forConcurrently :: [a] -> (a -> IO b) -> IO [b]
+
+-- Sequential, same type but different semantics
+mapM            :: (a -> IO b) -> [a] -> IO [b]
+for             :: [a] -> (a -> IO b) -> IO [b]
+```
+
+```haskell
+-- Concurrent
+mapConcurrently queryUrl ["pageA", "pageB", "pageC"] :: IO [HTML]
+forforConcurrently ["pageA", "pageB", "pageC"] queryUrl :: IO [HTML]
+
+-- Sequential
+mapM queryUrl ["pageA", "pageB", "pageC"] :: IO [HTML]
+for ["pageA", "pageB", "pageC"] queryUrl :: IO [HTML]
+```
+
+---
+
+# Cancellation
+
+Stop the job please
+
+---
+
+# Cancellation
+
+First, we create job
+
+```haskell
+forkIO :: IO () -> IO ThreadId
+```
+
+```haskell
+main = do
+  tidA <- forkIO (putStrLn "hello from thread")
+  tidB <- forkIO (putStrLn "hello from another thread")
+  --- other stuff
+```
+
+In Haskell, "thread" is lightweight on both thread creation and context switching, not like OS-thread. It's call **green thraed** sometimes.
+
+Sounds familiar? It's like concurrent model of Go!
+
+---
+
+# Cancellation
+
+Second, we stop/kill it
+
+```haskell
+killThread :: ThreadId -> IO () 
+throwTo :: Exception e => ThreadId -> e -> IO () 
+```
+
+```haskell
+longJobA :: IO ()
+longJobB :: IO ()
+
+main = do
+  tidA <- forkIO longJobA
+  tidB <- forkIO longJobB
+  --- on some condition
+  killThread tiA
+  throwTo ThisIsBadException tidB
+```
+
+How to stop a thread? Throw exception on it!
+
+This is called "asynchronous exception"
+
+---
+
+# Cancellation
+
+Clean up
+
+Actually, we'v mentioned them
+
+```haskell
+finally :: IO a -> IO b -> IO a
+onException :: IO a -> IO b -> IO a 
+```
+
+Asynchronous exception is just like exception, if you already specified cleanup process for normal exception, (at most case) you don't need extra work.
+
+(well, there are some detail designs about asynchronous exception but for the purpose of this talk I won't mention them here)
+
+---
+
+# Cancellation
+
+Conclusion
+
+- use `forkIO` to fork `IO ()` to get `ThreadId`
+- use `killThread`, `throwTo` and `throwTo` to notify thread
+- cancellation is built in in the language, every `IO` is cancellable
+  - you don't need something like "Context" to propagate the stop signal
+  - you don't need two version of API: normal one and cancellable one
+- handling cancellation is (almost) like handling exception
+
+---
+
+# Some comparisons
+
+I'm sorry but we're GOing to compare Haskell with Go
+
+---
+
+# Some comparisons
+
+Specification:
+
+- sequential, no cancellation
+  - running 10 jobs **sequentially**, collect their result then print them on screen
+- concurrent, no cancellation
+  - running 10 jobs **concurrently**, collect their result then print them on screen
+- concurrent, with cancellation
+  - running 10 jobs **concurrently**, collect their result then print them on screen
+  - set timeout, if 10 jobs run too slow, cancel all the running jobs, discard all results and print "oh no too slow" string on screen
+  
+---
+
+# Let's Go first!
+
+---
+
+# Some comparisons
+
+Go, sequential, no cancellation
+
+```go
+package main
+
+import "fmt"
+
+func jobs(i int) string { ... }
+
+func main() {
+    var results []string
+    for i := 1; i <= 10; i++ {
+        result := jobs(i)
+        results = append(results, result)
+    }
+
+    for _, v := range results {
+        fmt.Println(v)
+    }
+}
+```
+
+---
+
+# Some comparisons
+
+Go, concurrent, no cancellation
+
+```go
+package main
+
+import (
+	"fmt"
+	"sync"
+)
+
+func jobs(i int, wg *sync.WaitGroup, results chan<- string)
+{ ... }
+// to next page...
+```
+
+oh my it's too long
+
+---
+
+```go
+func main() {
+	var wg sync.WaitGroup
+	resultChan := make(chan string)
+
+	for i := 1; i <= 10; i++ {
+		wg.Add(1)
+		go jobs(i, &wg, resultChan)
+	}
+
+	go func() {
+		wg.Wait()
+		close(resultChan)
+	}()
+
+	var results []string
+	for r := range resultChan {
+		results = append(results, r)
+	}
+
+	for _, v := range results {
+		fmt.Println(v)
+	}
+}
+```
+
+---
+
+# Some comparisons
+
+Go, concurrent, with cancellation
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"sync"
+	"time"
+)
+
+func jobs(i int, wg *sync.WaitGroup,
+	results chan<- string, ctx context.Context)
+{ ... }
+// to next page...
+```
+
+oh my, longer
+
+---
+
+```go
+func main() {
+	var wg sync.WaitGroup
+	resultChan := make(chan string)
+	ctx, cancel := context.WithTimeout(context.Background(),
+		100*time.Millisecond)
+	defer cancel()
+
+	for i := 1; i <= 10; i++ {
+		wg.Add(1)
+		go jobs(i, &wg, resultChan, ctx)
+	}
+
+	go func() {
+		wg.Wait()
+		close(resultChan)
+	}()
+	// to next page...
+```
+
+---
+
+```go
+	select {
+	case <-ctx.Done(): // Timed out
+		fmt.Println("oh no too slow")
+
+	default:
+		var results []string
+		for r := range resultChan {
+			results = append(results, r)
+		}
+
+		for _, v := range results {
+			fmt.Println(v)
+		}
+	}
+}
+```
+
+oh long gopher
+
+---
+
+# Let's Haskell a bit!
+
+---
+
+# Some comparisons
+
+Haskell, sequential, no cancellation
+
+```haskell
+module Main where
+
+import Data.Foldable
+import Data.Traversable
+
+jobs :: Int -> IO String
+
+main :: IO ()
+main = do
+  results <- for             [1..10] jobs
+  for_ results putStrLn
+```
+
+---
+
+# Some comparisons
+
+Haskell, concurrent, no cancellation
+
+```haskell
+module Main where
+
+import Data.Foldable
+import Control.Concurrent.Async
+
+jobs :: Int -> IO String
+
+main :: IO ()
+main = do
+  results <- forConcurrently [1..10] jobs
+  for_ results putStrLn
+```
+
+---
+
+# Some comparisons
+
+Haskell, concurrent, with cancellation
+
+```haskell
+timeout :: Int -> IO a -> IO (Maybe a) -- in nano second
+```
+
+```haskell
+module Main where
+
+import Data.Foldable
+import Control.Concurrent.Async
+import System.Timeout
+
+jobs :: Int -> IO String
+
+main :: IO ()
+main = do
+  maybeResults <- timeout (1000 * 1000) (forConcurrently [1..10] jobs)
+  case maybeResults of
+    Just results -> for_ results putStrLn
+    Nothing -> putStrLn "oh no too slow"
+```
+
+---
+
+# Some comparisons
+
+What happens?
+
+the **DEFAULT** in language design plays an important role.
+
+it's like Vim v.s. IDE:
+
+you can achieve IDE experience in Vim, but require more effort
+
+it's less flexible while using IDE, but you got almost what you need out of the box
+
+
+also, generics is SUPER-DUPER-MUST-HAVE feature all around the world to make you code more usable, clean, elegant and enjoyable to read
+
+---
+
+# Conclusions
+
+---
+
+# Why I believe Haskell is worth learning?
+
+- it's VERY different from other programing language
+- due to the flexible design, you could only find a certain useful technique in Haskell
+  - like properties based testing
+  - deterministic parallel programming
+- it creates opportunities for you to think about programing language, human, and life
+  - why other language don't do that?
+  - why OOP is the mainstream?
+  - is it possible for two humans to fully understand each others?
+  - can we avoid misunderstand during communication?
+  - where's the limit of language?
+  - would language affect how you think?
+  
+---
+
+# Learning resources
+
+---
+
+# Learning resources
+
+- Functional Thursday (Chinese)
+  - https://www.facebook.com/FunctionalThursday/
+  - people there are happy to answer questions
+
+- Haskell subreddit (English)
+  - https://www.reddit.com/r/haskell/
+  - there is **Monthly Hask Anything** thread for newcomer to ask question of any level
+    
+- Channel of Philipp Hagenlocher (English)
+  - https://www.youtube.com/channel/UC3xdLFFsqG701QAyGJIPT1g/featured
+  - great video tutorial
+  
+---
+
+# Learning resources
+
+- Learn You a Haskell (English)
+  - http://learnyouahaskell.com/
+  - book that teaching Haskell
+  - I think it's not the best material to learn Haskell from scratch, but you can use it to learn specific topic
+  
+---
+layout: cover
+---
+
+# Thank you for joining!
+
+Hope you start thinking weird question after this talk
 
