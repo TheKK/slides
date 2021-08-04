@@ -1,0 +1,71 @@
+補充的重點
+---
+
+1. 組合性 (composibility)
+
+如何作出一個
+
+如何把兩個 "一個" 漂亮的組合成新的 "一個"
+
+如何繼續推導成好多個 "一個"，甚至是無窮無盡
+
+可以試着用這個觀點去評估所見的設計
+
+1. 例外處理，和，型別轉型，是兩碼子事
+
+Go 沒有例外處理 (throw/catch)，但還是可以嘗試轉型 error interface
+
+Rust 有例外處理的 "假象"，但是暫時沒辦法去對錯誤進行轉型
+
+Haskell 可以說是有例外處理的 "假象"，也還是可以嘗試轉型 Exception typeclass
+
+這幾種方向很好展現了 "抽象/假象" 和 "動態資訊/轉型" 帶來的好處和問題
+
+- Go 有 errgroup 可以用
+
+最後的例子我用了 wait group 跟 context，很明顯這個模式太常見了，於是出現了 errgroup 這個東西來協助你 "等待所有工作" 同時提供 "取消工作" 的能力
+
+這體現了 "做的到" 和 "漂亮地做到" 的差異，當然，美感是相當主觀的感受
+
+推薦的議程 (已經過去的)
+---
+
+- Introduction to Transactional Memory and Its Implementation
+
+Haskell 在 Haskell 98 導入了 STM，Software Transactional Memory
+
+可以看看他們會如何改變我們撰寫平行程式的模式，以及思考方向
+
+- Learning go error handling design from open source
+
+即使錯誤處理的機制不同，但錯誤處理的目標是一樣的
+
+可以比較看看 Go 專案中要解決的問題，在 Haskell 中可以怎麽被處理，是更方便還是更難用
+
+- Event Driven Concurrency using the Ruby Fiber Scheduler
+
+議程中很簡單的用 "跟 Go" 一樣來介紹 Haskell 的執行模型
+如果對平行計算的議題有興趣，可以瞭解不同執行環境是怎麽達成目標的，各自會遇到怎樣的限制
+
+推薦的議程 (後面的)
+---
+
+- Angstrom 原始碼實務解析
+
+介紹 parser combinator (不知道爲什麼中文的標題沒有寫到關鍵字），一種沒多少人聽過，但是真的真的真的很好用的寫 parser 的工具/概念
+
+有時候，regular expression 真的不夠用，你胡亂寫出來的，真的很難用
+
+因爲是 OCaml 寫的，應該會看到一些在這邊看到的詭異符號，跟 infix function
+
+- 那些Rust裡好用的抽象與實用語法火力展示
+
+Rust 受 Haskell 的影響不少，或許可以聽到很多很類似的東西，如果你對這類型的議題有興趣的話
+
+- 探討 JavaScript 中的 synchronization & concurrency - 以 TypeScript 打造的開源 task queue library 為例
+
+Concurrent，加一
+
+- 2021 年 Ruby 高並行程式指北
+
+Concurrent，加一

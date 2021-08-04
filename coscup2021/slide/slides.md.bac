@@ -103,10 +103,6 @@ It's dangerous to go alone! Take these.
 
 - everything is function
   - value is like function without argument, wow
-- Haskell is lazy (evaluation) by default
-  - I won't focus on this part in this talk
-- Haskellers are lazy
-  - they don't like repetition
 - focus on input, output and types
   - try not to think about variable mutation here
 
@@ -260,8 +256,6 @@ more examples
 
 Type of functions
 
-You could treat the last type as return type
-
 - lambda expressions have type
 
 `(\a -> a + 1) :: Int -> Int`, argument is `Int`, return type is `Int`
@@ -274,90 +268,15 @@ You could treat the last type as return type
 
 `mapStringToLength :: [String] -> [Int]`
 
----
-
-# Define value in code
-
-```haskell
-theAnswer :: Int
-theAnswer = 42
-```
-
-So basically you tell compiler (or your co-worker):
-
-- what's the type of `theAnswer`
-- what's the implementation of `theAnswer`
-
----
-
-# Define function in code
-
-```haskell
-addThree :: Int -> Int
-addThree = (\n -> n + 3)
-```
-
-So basically you tell compiler (or your co-worker):
-
-- what's the type of `addThree`
-- what's the implementation of `addThree`
-
----
-
-# Define value in code
-
-Looks familiar
-
-```haskell
-theAnswer :: Int
-theAnswer = 42
-```
-
-```haskell
-addThree :: Int -> Int
-addThree = (\n -> n + 3)
-```
-
-For sure, **function** is one kind of **value**
-
----
-
-# Define function in code
-
-So many possibilities
-
-```haskell
-addThree :: Int -> Int
-addThree = (\n -> n + 3)
-```
-
-To reduce the number of parentheses and arrows, you could define **functoin** in the following form
-
-```haskell
-addThree :: Int -> Int -- type is the same
-addThree n = n + 3     -- move argument the the left
-```
-
-or in elementary school style, if you prefer (yes it's valid syntax)
-
-```haskell
-f :: Int -> Int
-f(x) = x + 3
-```
+You could treat the last type as return type
 
 ---
 
 # Simple generic in functions
 
-```haskell
-mapStringToInt :: (String -> Int) -> ([String] -> [Int])
-```
-
-how to make it more generic? Simple! Make some **type variables**!
 
 ```haskell
--- String becomes 'a'
--- Int becomes 'b'
+-- a and b are type variables
 map :: (a -> b) -> ([a] -> [b])
 ```
 
@@ -673,37 +592,13 @@ you don't need to write code below like many other languages
 
 ```haskell
 -- even though it's still valid in Haskell
-(\n -> addThreeInt 1 2 n) 3
+(\n -> addThreeInt 1 2 n)
+(addThreeInt 1 2)  -- they are identical
 ```
 
 ```javascript
 // JavaScript, so many parentheses, is that LispScript?
-(n => addThreeInt(1, 2, n)) (3) 
-```
-
----
-
-# Currying
-
-Try to change your point of view, so magicall
-
-```haskell
-addThreeStuff :: Int -> Bool -> String -> Int
-```
-
-is actually (`->` is right associative)
-
-```haskell
-addThreeStuff :: Int -> (Bool -> (String -> Int))
-```
-
-so
-
-```haskell
-addThreeStuff :: Int -> (Bool -> (String -> Int))
-addThreeStuff 1       :: Bool -> (String -> Int)
-addThreeStuff 1 False          :: String -> Int
-addThreeStuff 1 False "bye"              :: Int
+(n => addThreeInt(1, 2, n))
 ```
 
 ---
@@ -774,47 +669,20 @@ It's like `struct` in most language
 
 ---
 
-# Data - declare them
-
-More like struct
-
-```haskell
--- Define a type named Person
-data Person = Person
-  { age  :: Int
-  , name :: String
-  }
-
--- And you'll get following functions automatically
-
--- Person :: Int -> String -> Person
-
--- age  :: Person -> Int
--- name :: Person -> String
-```
-
-It's like `struct` in most language, with field accessor
-
----
-
 # Data - mix them
 
 We want both
 
 ```haskell
--- Define a type named Shape
-data Shape
-  = Circle { radius :: Int }
-  | Rectangle { width :: Int , height :: Int }
+-- Define a type named LaunchBox
+data LaunchBox
+  = Apple Int
+  | Orange Int
 
 -- And you'll get following functions automatically
 
--- Circle    :: Int -> Shape
--- Rectangle :: Int -> Int -> Shape
-
--- radius :: Circle -> Int
--- width  :: Rectangle -> Int
--- height :: Rectangle -> Int
+-- Apple  :: Int -> LaunchBox
+-- Orange :: Int -> LaunchBox
 ```
 
 ---
@@ -836,79 +704,6 @@ Just "do it" :: Maybe String
 ```
 
 It's like `null pointer` in most language, but you **CAN'T** dereference it randomly
-
----
-
-# Type inference
-
-Statically typed does not need to be verbose
-
----
-
-# Type inference
-
-Start from Map
-
-```haskell
-data Map k a
-
-empty  :: Map k a 
-insert :: Ord k => k -> a -> Map k a -> Map k a
-(&) :: a -> (a -> b) -> b
-```
-
-```haskell
--- The type of expression below is Map Bool String
-empty
-  & insert True "yes"
-  & insert False "no"
-```
-
-Why there's no `Bool`, `Map` or `String` in our code and it still compiled !
-
-<!--
-靜態型別的語言不是應該型別寫地到處都是嗎
--->
-
----
-
-# Type inference
-
-Static enough
-
-```haskell
-data Map k a
-
-empty  :: Map k a 
-insert :: Ord k => k -> a -> Map k a -> Map k a
-```
-
-```haskell
-empty
-  & insert True "yes"
-  & insert False "no"
-```
-
-- `insert` in our code takes `Bool` and `String` as arguments
-- `insert :: Bool -> String -> Map Bool String -> Map Bool String`
-- so the compiler knows `empty` should return `Map Bool String`
-- and the compiler knows everything it needs
-
----
-
-# Type inference
-
-Lessons
-
-- if a programing language is well designed, it could be robust yet clean
-- statically typed doesn't means verbose and ceremony code
-  - that's caused by your bad design, not by static type
-- the most popluar solution is not always the optimal one
-  - Bandwagon effect
-
-<!--
-從眾效應
--->
 
 ---
 
@@ -1029,6 +824,63 @@ string some_logic(bool a, bool b) {
 
 ---
 
+# Type inference
+
+Statically typed does not need to be verbose
+
+---
+
+# Type inference
+
+Start from Map
+
+```haskell
+data Map k a
+
+empty  :: Map k a 
+insert :: Ord k => k -> a -> Map k a -> Map k a
+(&) :: a -> (a -> b) -> b
+```
+
+```haskell
+-- The type of expression below is Map Bool String
+empty
+  & insert True "yes"
+  & insert False "no"
+```
+
+Why there's no `Bool`, `Map` or `String` in our code and it still compiled !
+
+<!--
+靜態型別的語言不是應該型別寫地到處都是嗎
+-->
+
+---
+
+# Type inference
+
+Static enough
+
+```haskell
+data Map k a
+
+empty  :: Map k a 
+insert :: Ord k => k -> a -> Map k a -> Map k a
+```
+
+```haskell
+empty
+  & insert True "yes"
+  & insert False "no"
+```
+
+- `insert` in our code takes `Bool` and `String` as arguments
+- `insert :: Bool -> String -> Map Bool String -> Map Bool String`
+- so the compiler knows `empty` should return `Map Bool String`
+- and the compiler knows everything it needs
+
+---
+
 # IO, side effects
 
 Wake up, we have a **RealWorld** to burn
@@ -1065,8 +917,6 @@ main = putStrLn "Hello World"
 
 - `()` is empty tuple, it's like `void` in some language
   - you could call it **unit** in Haskell
-- `IO a` is a generic data type
-  - `a` could be anything
 - `IO ()` means: do some side effects and produce a unit
 - writing a Haskell program is like: chain lots of `IO` together to produce the final `IO ()` and run it
 
@@ -1077,9 +927,8 @@ main = putStrLn "Hello World"
 How to connect them?
 
 ```haskell
-putStrLn :: String -> IO ()
 getLine :: IO String
-(<>) :: String -> String -> String
+putStrLn :: String -> IO ()
 
 main :: IO ()
 main = ???
@@ -1087,7 +936,7 @@ main = ???
 
 - `IO String` means: do some side effects and produce a String
 
-But how could us access the `String` from `getLine`, preppend it with "Hello, " then print it on screen?
+But how could us access the `String` from `getLine`, then print it on screen?
 
 ---
 
@@ -1096,9 +945,8 @@ But how could us access the `String` from `getLine`, preppend it with "Hello, " 
 Time for ">>="
 
 ```haskell
-putStrLn :: String -> IO ()
 getLine :: IO String
-(<>) :: String -> String -> String
+putStrLn :: String -> IO ()
 
 -- > > =
 (>>=) :: IO a -> (a -> IO b) -> IO b
@@ -1110,7 +958,7 @@ getLine :: IO String
 we could now connect them together
 
 ```haskell
-getLine >>= \name -> putStrLn ("Hello, " <> name) :: IO ()
+getLine >>= putStrLn :: IO ()
 ```
 
 <!--
@@ -1469,27 +1317,6 @@ mapConcurrently queryUrl ["pageA", "pageB", "pageC"] :: IO [HTML]
 -- for-loop style
 forforConcurrently ["pageA", "pageB", "pageC"] queryUrl :: IO [HTML]
 ```
-
----
-
-# Concurrency
-
-Simple yet powerful
-
-```haskell
-mapConcurrently :: (a -> IO b) -> [a] -> IO [b]
-forConcurrently :: [a] -> (a -> IO b) -> IO [b]
-
-queryUrl:: Url -> IO HTML
-
-mapConcurrently queryUrl ["pageA", "pageB", "pageC"] :: IO [HTML]
-forforConcurrently ["pageA", "pageB", "pageC"] queryUrl :: IO [HTML]
-```
-
-
-You won't see something like "WaitGroup" to count jobs, or using "Channel" to send message here.
-
-Haskell is SO GOOD at abstraction, haskellers are too lazy to write same stuff (ceremony) again and again and again ans again.
 
 ---
 
